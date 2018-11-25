@@ -18,6 +18,8 @@ public:
 	void SetFloat(const std::string& name, GLfloat value) const;
 	void SetInt(const std::string& name, GLint value) const;
 
+	void SetVec2(const std::string& name, const glm::vec2& value) const;
+	void SetMat4(const std::string& name, const glm::mat4& value) const;
 	GLuint shaderProgram;
 };
 
@@ -114,4 +116,14 @@ inline void Shader::SetFloat(const std::string & name, GLfloat value) const
 inline void Shader::SetInt(const std::string & name, GLint value) const
 {
 	glUniform1i(glGetUniformLocation(shaderProgram, name.c_str()), value);
+}
+
+inline void Shader::SetVec2(const std::string & name, const glm::vec2 & value) const
+{
+	glUniform2fv(glGetUniformLocation(shaderProgram, name.c_str()), 1, &value[0]);
+}
+
+inline void Shader::SetMat4(const std::string& name, const glm::mat4& value) const
+{
+	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, name.c_str()), 1, GL_FALSE, &value[0][0]);
 }
