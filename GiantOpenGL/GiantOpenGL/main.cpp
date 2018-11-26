@@ -98,6 +98,20 @@ int main()
 		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 	};
 
+	glm::vec3 cubePositions[10] =
+	{
+		glm::vec3(0.0f,  0.0f,  0.0f),
+		glm::vec3(2.0f,  5.0f, -15.0f),
+		glm::vec3(-1.5f, -2.2f, -2.5f),
+		glm::vec3(-3.8f, -2.0f, -12.3f),
+		glm::vec3(2.4f, -0.4f, -3.5f),
+		glm::vec3(-1.7f,  3.0f, -7.5f),
+		glm::vec3(1.3f, -2.0f, -2.5f),
+		glm::vec3(1.5f,  2.0f, -2.5f),
+		glm::vec3(1.5f,  0.2f, -1.5f),
+		glm::vec3(-1.3f,  1.0f, -1.5f)
+	};
+
 	//gen VAO, VBO
 	GLuint VAO, VBO;
 	glGenVertexArrays(1, &VAO);
@@ -181,9 +195,6 @@ int main()
 
 		shader.SetFloat("mixFactor", mixFactor);
 
-		glm::mat4 model;
-		model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.5f, 1.0f, 0.0f));
-		shader.SetMat4("model", model);
 		glm::mat4 view;
 		view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
 		shader.SetMat4("view", view);
@@ -192,7 +203,15 @@ int main()
 		shader.SetMat4("projection", proj);
 
 		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		for (unsigned int i = 0; i < 10; ++i)
+		{
+			glm::mat4 model;
+			model = glm::translate(model, cubePositions[i]);
+			model = glm::rotate(model, glm::radians((float)20*i), glm::vec3(0.5f, 1.0f, 0.0f));
+			shader.SetMat4("model", model);
+
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
 
 		glfwPollEvents();
 		glfwSwapBuffers(window);
