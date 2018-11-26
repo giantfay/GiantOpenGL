@@ -26,7 +26,7 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	//create windwo
+	//create windwow
 	GLFWwindow* window = glfwCreateWindow(screenWidth, screenHeight, "GinatOpenGL", nullptr, nullptr);
 	if (!window)
 	{
@@ -196,7 +196,10 @@ int main()
 		shader.SetFloat("mixFactor", mixFactor);
 
 		glm::mat4 view;
-		view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+		float radius = 10.0f;
+		float camX = sin(glfwGetTime())*radius;
+		float camZ = cos(glfwGetTime())*radius;
+		view = glm::lookAt(glm::vec3(camX, 0.0f, camZ), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		shader.SetMat4("view", view);
 		glm::mat4 proj;
 		proj = glm::perspective(glm::radians(45.0f), (float)screenWidth / (float)screenHeight, 0.1f, 100.0f);
