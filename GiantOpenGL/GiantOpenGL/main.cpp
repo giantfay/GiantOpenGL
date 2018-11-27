@@ -218,11 +218,7 @@ int main()
 
 		shader.SetFloat("mixFactor", mixFactor);
 
-		glm::mat4 view;
-		float radius = 10.0f;
-		float camX = sin(glfwGetTime())*radius;
-		float camZ = cos(glfwGetTime())*radius;
-		view = camera.GetViewMatrix();
+		glm::mat4 view = camera.GetViewMatrix();
 
 		shader.SetMat4("view", view);
 		glm::mat4 proj;
