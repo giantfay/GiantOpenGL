@@ -6,7 +6,9 @@
 #include "glm\gtc\type_ptr.hpp"
 
 #include "stb_image.h"
+
 #include "Shader.h"
+#include "Camera.h"
 
 #include <iostream>
 
@@ -15,9 +17,7 @@ const int screenHeight = 600;
 
 float mixFactor = 0.2f;
 
-glm::vec3 cameraPos(0.0f, 0.0f, 3.0f);
-glm::vec3 cameraFront(0.0f, 0.0f, -1.0f);
-glm::vec3 cameraUp(0.0f, 1.0f, 0.0f);
+Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
@@ -25,12 +25,7 @@ float lastFrame = 0.0f;
 float lastX = 400.0f;
 float lastY = 300.0f;
 
-float pitch = 0.0f;
-float yaw = -90.0f;
-
 bool firstMouse = true;
-
-float fov = 45.0f;
 
 void processInput(GLFWwindow* window);
 
@@ -227,11 +222,11 @@ int main()
 		float radius = 10.0f;
 		float camX = sin(glfwGetTime())*radius;
 		float camZ = cos(glfwGetTime())*radius;
-		view = glm::lookAt(cameraPos, cameraPos+cameraFront, cameraUp);
+		view = camera.GetViewMatrix();
 
 		shader.SetMat4("view", view);
 		glm::mat4 proj;
-		proj = glm::perspective(glm::radians(fov), (float)screenWidth / (float)screenHeight, 0.1f, 100.0f);
+		proj = glm::perspective(glm::radians(camera.Fov), (float)screenWidth / (float)screenHeight, 0.1f, 100.0f);
 		shader.SetMat4("projection", proj);
 
 		glBindVertexArray(VAO);
@@ -276,19 +271,19 @@ void processInput(GLFWwindow* window)
 	}
 	else if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 	{
-		cameraPos += cameraSpeed * cameraFront;
+		camera.ProcessKeyboard(CameraMovement::FORWARD, deltaTime);
 	}
 	else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
 	{
-		cameraPos -= cameraSpeed * cameraFront;
+		camera.ProcessKeyboard(CameraMovement::BACKWARD, deltaTime);
 	}
 	else if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
 	{
-		cameraPos -= cameraSpeed * glm::normalize(glm::cross(cameraFront, cameraUp));
+		camera.ProcessKeyboard(CameraMovement::LEFT, deltaTime);
 	}
 	else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 	{
-		cameraPos += cameraSpeed * glm::normalize(glm::cross(cameraFront, cameraUp));
+		camera.ProcessKeyboard(CameraMovement::RIGHT, deltaTime);
 	}
 }
 
@@ -305,33 +300,10 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	lastX = xpos;
 	lastY = ypos;
 
-	float sensitivity = 0.05;
-	xoffset *= sensitivity;
-	yoffset *= sensitivity;
-
-	pitch += yoffset;
-	if (pitch > 89.0f)
-		pitch = 89.0f;
-	if (pitch < -89.0f)
-		pitch = -89.0f;
-
-	yaw += xoffset;
-
-	glm::vec3 front;
-	front.x = cos(glm::radians(pitch))*cos(glm::radians(yaw));
-	front.y = sin(glm::radians(pitch));
-	front.z = cos(glm::radians(pitch))*sin(glm::radians(yaw));
-	cameraFront = front;
+	camera.ProcessMouseMovement(xoffset, yoffset);
 }
 
-void scroll_callback(GLFWwindow* windwo, double xoffset, double yoffset)
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-	if (fov >= 1.0f && fov <= 45.0f)
-	{
-		fov += yoffset;
-	}
-	else if (fov < 1.0f)
-		fov = 1.0f;
-	else if (fov > 45.0f)
-		fov = 45.0f;
+	camera.ProcessMouseScroll(xoffset, yoffset);
 }
