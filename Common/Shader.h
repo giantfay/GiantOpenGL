@@ -19,6 +19,7 @@ public:
 	void SetInt(const std::string& name, GLint value) const;
 
 	void SetVec2(const std::string& name, const glm::vec2& value) const;
+	void SetVec3(const std::string& name, const glm::vec3& value) const;
 	void SetMat4(const std::string& name, const glm::mat4& value) const;
 	GLuint shaderProgram;
 };
@@ -121,6 +122,11 @@ inline void Shader::SetInt(const std::string & name, GLint value) const
 inline void Shader::SetVec2(const std::string & name, const glm::vec2 & value) const
 {
 	glUniform2fv(glGetUniformLocation(shaderProgram, name.c_str()), 1, &value[0]);
+}
+
+inline void Shader::SetVec3(const std::string& name, const glm::vec3& value) const
+{
+	glUniform3fv(glGetUniformLocation(shaderProgram, name.c_str()), 1, &value[0]);
 }
 
 inline void Shader::SetMat4(const std::string& name, const glm::mat4& value) const

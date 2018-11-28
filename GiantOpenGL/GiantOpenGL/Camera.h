@@ -69,10 +69,10 @@ public:
 		switch (direction)
 		{
 		case CameraMovement::FORWARD:
-			Position += MovementSpeed*deltaTime;
+			Position += Front*MovementSpeed*deltaTime;
 			break;
 		case CameraMovement::BACKWARD:
-			Position -= MovementSpeed*deltaTime;
+			Position -= Front*MovementSpeed*deltaTime;
 			break;
 		case CameraMovement::LEFT:
 			Position -= Right*MovementSpeed*deltaTime;

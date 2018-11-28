@@ -65,13 +65,13 @@ int main()
 			glViewport(0, 0, width, height);
 		});
 
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetScrollCallback(window, scroll_callback);
 
 	//lode shader file and compile
-	Shader shader("../../Shaders/Boxes/vert.glsl", "../../Shaders/Boxes/frag.glsl");
-
+	Shader shader("../../Shaders/Colors/colors_vert.glsl", "../../Shaders/Colors/colors_frag.glsl");
+	Shader lampShader("../../Shaders/Colors/lamp_vert.glsl", "../../Shaders/Colors/lamp_frag.glsl");
 	//vertices
 	GLfloat vertices[] = {
 		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
@@ -148,6 +148,13 @@ int main()
 	// note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+	GLuint lampVAO;
+	glGenVertexArrays(1, &lampVAO);
+	glBindVertexArray(lampVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)(0));
+	glEnableVertexAttribArray(0);
+
 	// You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
 	// VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
 	glBindVertexArray(0);
@@ -188,11 +195,6 @@ int main()
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 	stbi_image_free(data);
-	
-	shader.Use();
-	shader.SetInt("texture1", 0);
-	shader.SetInt("texture2", 1);
-	
 
 	glEnable(GL_DEPTH_TEST);
 
@@ -205,18 +207,12 @@ int main()
 
 		processInput(window);
 
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		//bind textures to shader
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, tex1);
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, tex2);
-
 		shader.Use();
-
-		shader.SetFloat("mixFactor", mixFactor);
+		shader.SetVec3("objColor", glm::vec3(1.0f, 0.5f, 0.31f));
+		shader.SetVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
 
 		glm::mat4 view = camera.GetViewMatrix();
 
@@ -226,15 +222,22 @@ int main()
 		shader.SetMat4("projection", proj);
 
 		glBindVertexArray(VAO);
-		for (unsigned int i = 0; i < 10; ++i)
-		{
-			glm::mat4 model;
-			model = glm::translate(model, cubePositions[i]);
-			model = glm::rotate(model, glm::radians((float)20*i), glm::vec3(0.5f, 1.0f, 0.0f));
-			shader.SetMat4("model", model);
+		glm::mat4 model;
+		model = glm::translate(model, cubePositions[0]);
+		shader.SetMat4("model", model);
 
-			glDrawArrays(GL_TRIANGLES, 0, 36);
-		}
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+		glBindVertexArray(lampVAO);
+		lampShader.Use();
+		glm::vec3 lampPos(1.2f, 1.0f, 2.0f);
+		glm::mat4 lampModel;
+		lampModel = glm::translate(lampModel, lampPos);
+		lampModel = glm::scale(lampModel, glm::vec3(0.2f));
+		lampShader.SetMat4("model", lampModel);
+		lampShader.SetMat4("view", view);
+		lampShader.SetMat4("projection", proj);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 		glfwPollEvents();
 		glfwSwapBuffers(window);
