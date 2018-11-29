@@ -231,6 +231,7 @@ int main()
 		shader.SetVec3("objColor", glm::vec3(1.0f, 0.5f, 0.31f));
 		shader.SetVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
 		shader.SetVec3("lightPos", lampPos);
+		shader.SetVec3("viewPos", camera.Position);
 		shader.SetMat4("view", view);
 
 		glm::mat4 model;
