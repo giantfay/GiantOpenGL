@@ -27,6 +27,10 @@ float lastY = 300.0f;
 
 bool firstMouse = true;
 
+float ambientStrength = 0.0f;
+float diffuseStrength = 0.0f;
+float specularStrength = 0.0f;
+
 void processInput(GLFWwindow* window);
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -217,7 +221,9 @@ int main()
 
 		glBindVertexArray(lampVAO);
 		lampShader.Use();
-		glm::vec3 lampPos(1.2f, 1.0f, 2.0f);
+		float lampX = 1.5f*sin(glfwGetTime());
+		float lampZ = 1.5f*cos(glfwGetTime());
+		glm::vec3 lampPos(lampX, 1.0f, lampZ);
 		glm::mat4 lampModel;
 		lampModel = glm::translate(lampModel, lampPos);
 		lampModel = glm::scale(lampModel, glm::vec3(0.2f));
@@ -233,6 +239,9 @@ int main()
 		shader.SetVec3("lightPos", lampPos);
 		shader.SetVec3("viewPos", camera.Position);
 		shader.SetMat4("view", view);
+		shader.SetFloat("ambientStrength", ambientStrength);
+		shader.SetFloat("diffuseStrength", diffuseStrength);
+		shader.SetFloat("specularStrength", specularStrength);
 
 		glm::mat4 model;
 		model = glm::translate(model, cubePositions[0]);
@@ -284,6 +293,30 @@ void processInput(GLFWwindow* window)
 	else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 	{
 		camera.ProcessKeyboard(CameraMovement::RIGHT, deltaTime);
+	}
+	else if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)
+	{
+		ambientStrength += 0.1*deltaTime;
+	}
+	else if (glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS)
+	{
+		ambientStrength -= 0.1*deltaTime;
+	}
+	else if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
+	{
+		diffuseStrength += 0.1*deltaTime;
+	}
+	else if (glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS)
+	{
+		diffuseStrength -= 0.1*deltaTime;
+	}
+	else if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+	{
+		specularStrength += 0.1*deltaTime;
+	}
+	else if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS)
+	{
+		specularStrength -= 0.1*deltaTime;
 	}
 }
 
