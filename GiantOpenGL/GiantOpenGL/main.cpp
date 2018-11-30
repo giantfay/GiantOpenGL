@@ -228,11 +228,16 @@ int main()
 
 		glBindVertexArray(VAO);
 		shader.Use();
-		shader.SetVec3("objColor", glm::vec3(1.0f, 0.5f, 0.31f));
-		shader.SetVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
-		shader.SetVec3("lightPos", lampPos);
+		shader.SetVec3("light.position", lampPos);
+		shader.SetVec3("light.ambient", glm::vec3(0.1f, 0.1f, 0.1f));
+		shader.SetVec3("light.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
+		shader.SetVec3("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
 		shader.SetVec3("viewPos", camera.Position);
 		shader.SetMat4("view", view);
+		shader.SetVec3("material.ambient", glm::vec3(1.0f, 0.5f, 0.31f));
+		shader.SetVec3("material.diffuse", glm::vec3(1.0f, 0.5f, 0.31f));
+		shader.SetVec3("material.specular", glm::vec3(0.5f, 0.5f, 0.5f));
+		shader.SetFloat("material.shininess", 32.0f);
 
 		glm::mat4 model;
 		model = glm::translate(model, cubePositions[0]);
