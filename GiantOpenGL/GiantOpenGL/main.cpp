@@ -34,6 +34,78 @@ void scroll_callback(GLFWwindow* windwo, double xoffset, double yoffset);
 
 GLuint load_texture(const char* imagePath);
 
+class DirectionalLight
+{
+public:
+	DirectionalLight(const std::string& name, const glm::vec3& color, const glm::vec3& dir, const glm::vec3& ambient, const glm::vec3& diffuse, const glm::vec3& specular)
+		:_name(name), _color(color), _direction(dir), _ambient(ambient), _diffuse(diffuse), _specular(specular)
+	{
+
+	}
+
+	void SetShader(Shader& shader) const
+	{
+		shader.SetVec3(_name + ".direction", _direction);
+		shader.SetVec3(_name + ".ambient", _ambient*_color);
+		shader.SetVec3(_name + ".diffuse", _diffuse*_color);
+		shader.SetVec3(_name + ".specular", _specular*_color);
+	}
+private:
+	std::string _name;
+	glm::vec3 _direction;
+	glm::vec3 _ambient;
+	glm::vec3 _diffuse;
+	glm::vec3 _specular;
+	glm::vec3 _color;
+};
+
+class PointLight
+{
+public:
+	PointLight(const std::string& name,
+		const glm::vec3& color,
+		const glm::vec3& position,
+		const glm::vec3& ambient,
+		const glm::vec3& diffuse,
+		const glm::vec3& specular,
+		float constant,
+		float linear,
+		float quadratic)
+		:_name(name),
+		_color(color),
+		_position(position),
+		_ambient(ambient),
+		_diffuse(diffuse),
+		_specular(specular),
+		_constant(constant),
+		_linear(linear),
+		_quadratic(quadratic)
+	{
+
+	}
+
+	void SetShader(Shader& shader) const
+	{
+		shader.SetVec3(_name + ".position", _position);
+		shader.SetVec3(_name + ".ambient", _ambient*_color);
+		shader.SetVec3(_name + ".diffuse", _diffuse*_color);
+		shader.SetVec3(_name + ".specular", _specular*_color);
+		shader.SetFloat(_name + ".constant", _constant);
+		shader.SetFloat(_name + ".linear", _linear);
+		shader.SetFloat(_name + ".quadratic", _quadratic);
+	}
+private:
+	std::string _name;
+	glm::vec3 _position;
+	glm::vec3 _ambient;
+	glm::vec3 _diffuse;
+	glm::vec3 _specular;
+	float _constant;
+	float _linear;
+	float _quadratic;
+	glm::vec3 _color;
+};
+
 int main()
 {
 	//init glfw
@@ -134,6 +206,22 @@ int main()
 		glm::vec3(-1.3f,  1.0f, -1.5f)
 	};
 
+	glm::vec3 pointLightsPos[4] = 
+	{
+		glm::vec3(0.7f,  0.2f,  2.0f),
+		glm::vec3(2.3f, -3.3f, -4.0f),
+		glm::vec3(-4.0f,  2.0f, -12.0f),
+		glm::vec3(0.0f,  0.0f, -3.0f)
+	};
+
+	glm::vec3 pointLightColor[4] =
+	{
+		glm::vec3(1.0f, 1.0f, 1.0f),
+		glm::vec3(1.0f, 0.0f, 0.0f),
+		glm::vec3(0.0f, 1.0f, 0.0f),
+		glm::vec3(0.0f, 0.0f, 1.0f)
+	};
+
 	//gen VAO, VBO
 	GLuint VAO, VBO;
 	glGenVertexArrays(1, &VAO);
@@ -172,6 +260,41 @@ int main()
 	shader.SetInt("material.diffuseMap", 0);
 	shader.SetInt("material.specularMap", 1);
 
+	//DirectionalLight
+	DirectionalLight dirLight("dirLight", glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(-0.2f, -1.0f, -0.3f),
+										glm::vec3(0.05f, 0.05f, 0.05f), 
+										glm::vec3(0.4f, 0.4f, 0.4f), 
+										glm::vec3(0.5f, 0.5f, 0.5f));
+	dirLight.SetShader(shader);
+	//PointLight
+	PointLight pointLights[4] = {
+		PointLight("pointLights[0]", pointLightsPos[0], pointLightColor[0],
+		glm::vec3(0.05f, 0.05f, 0.05f),
+		glm::vec3(0.8f, 0.8f, 0.8f),
+		glm::vec3(1.0f, 1.0f, 1.0f),
+		1.0f, 0.09f, 0.032f),
+		PointLight("pointLights[1]", pointLightsPos[1], pointLightColor[1],
+		glm::vec3(0.05f, 0.05f, 0.05f),
+		glm::vec3(0.8f, 0.8f, 0.8f),
+		glm::vec3(1.0f, 1.0f, 1.0f),
+		1.0f, 0.09f, 0.032f),
+		PointLight("pointLights[2]", pointLightsPos[2], pointLightColor[2],
+		glm::vec3(0.05f, 0.05f, 0.05f),
+		glm::vec3(0.8f, 0.8f, 0.8f),
+		glm::vec3(1.0f, 1.0f, 1.0f),
+		1.0f, 0.09f, 0.032f),
+		PointLight("pointLights[3]", pointLightsPos[3], pointLightColor[3],
+		glm::vec3(0.05f, 0.05f, 0.05f),
+		glm::vec3(0.8f, 0.8f, 0.8f),
+		glm::vec3(1.0f, 1.0f, 1.0f),
+		1.0f, 0.09f, 0.032f),
+	};
+	for (int i = 0; i < 4; ++i)
+	{
+		pointLights[i].SetShader(shader);
+	}
+	
+
 	glEnable(GL_DEPTH_TEST);
 
 	//render loop
@@ -193,14 +316,19 @@ int main()
 
 		glBindVertexArray(lampVAO);
 		lampShader.Use();
-		glm::vec3 lampPos(1.2f, 1.0f, 2.0f);
-		glm::mat4 lampModel;
-		lampModel = glm::translate(lampModel, lampPos);
-		lampModel = glm::scale(lampModel, glm::vec3(0.2f));
-		lampShader.SetMat4("model", lampModel);
+		
 		lampShader.SetMat4("view", view);
 		lampShader.SetMat4("projection", proj);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+		for (int i = 0; i < 4; ++i)
+		{
+			glm::mat4 lampModel;
+			lampModel = glm::translate(lampModel, pointLightsPos[i]);
+			lampModel = glm::scale(lampModel, glm::vec3(0.2f));
+			lampShader.SetMat4("model", lampModel);
+			lampShader.SetVec3("color", pointLightColor[i]);
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, tex1);
@@ -209,16 +337,7 @@ int main()
 
 		glBindVertexArray(VAO);
 		shader.Use();
-		shader.SetVec3("light.position", camera.Position);
-		shader.SetVec3("light.direction", camera.Front);
-		shader.SetFloat("light.cutOff", glm::cos(glm::radians(12.5)));
-		shader.SetFloat("light.outerCutOff", glm::cos(glm::radians(17.5)));
-		shader.SetVec3("light.ambient", glm::vec3(0.1f, 0.1f, 0.1f));
-		shader.SetVec3("light.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
-		shader.SetVec3("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
-		shader.SetFloat("light.constant", 1.0f);
-		shader.SetFloat("light.linear", 0.09f);
-		shader.SetFloat("light.quadratic", 0.032f);
+
 
 		shader.SetVec3("viewPos", camera.Position);
 		shader.SetMat4("view", view);
