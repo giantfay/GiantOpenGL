@@ -209,10 +209,14 @@ int main()
 
 		glBindVertexArray(VAO);
 		shader.Use();
-		shader.SetVec3("light.direction", glm::vec3(-0.2f, -1.0f, -0.3f));
+		shader.SetVec3("light.position", lampPos);
 		shader.SetVec3("light.ambient", glm::vec3(0.1f, 0.1f, 0.1f));
 		shader.SetVec3("light.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
 		shader.SetVec3("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+		shader.SetFloat("light.constant", 1.0f);
+		shader.SetFloat("light.linear", 0.09f);
+		shader.SetFloat("light.quadratic", 0.032f);
+
 		shader.SetVec3("viewPos", camera.Position);
 		shader.SetMat4("view", view);
 		shader.SetVec3("material.specular", glm::vec3(0.5f, 0.5f, 0.5f));
