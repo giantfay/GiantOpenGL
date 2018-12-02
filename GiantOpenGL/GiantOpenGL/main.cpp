@@ -106,6 +106,76 @@ private:
 	glm::vec3 _color;
 };
 
+class SpotLight
+{
+public:
+	SpotLight(const std::string& name,
+		const glm::vec3& color,
+		const glm::vec3& position,
+		const glm::vec3& direction,
+		const glm::vec3& ambient,
+		const glm::vec3& diffuse,
+		const glm::vec3& specular,
+		float constant,
+		float linear,
+		float quadratic,
+		float cutOff,
+		float outterCutOff)
+		:_name(name),
+		_color(color),
+		_position(position),
+		_direction(direction),
+		_ambient(ambient),
+		_diffuse(diffuse),
+		_specular(specular),
+		_constant(constant),
+		_linear(linear),
+		_quadratic(quadratic),
+		_cutOff(cutOff),
+		_outterCutOff(outterCutOff)
+	{
+
+	}
+
+	void SetPos(const glm::vec3& pos)
+	{
+		_position = pos;
+	}
+
+	void SetDir(const glm::vec3& dir)
+	{
+		_direction = dir;
+	}
+
+	void SetShader(Shader& shader) const
+	{
+		shader.SetVec3(_name + ".position", _position);
+		shader.SetVec3(_name + ".direction", _direction);
+		shader.SetVec3(_name + ".ambient", _ambient*_color);
+		shader.SetVec3(_name + ".diffuse", _diffuse*_color);
+		shader.SetVec3(_name + ".specular", _specular*_color);
+		shader.SetFloat(_name + ".constant", _constant);
+		shader.SetFloat(_name + ".linear", _linear);
+		shader.SetFloat(_name + ".quadratic", _quadratic);
+		shader.SetFloat(_name + ".cutOff", _cutOff);
+		shader.SetFloat(_name + ".outerCutOff", _outterCutOff);
+	}
+private:
+	std::string _name;
+	glm::vec3 _position;
+	glm::vec3 _direction;
+	glm::vec3 _ambient;
+	glm::vec3 _diffuse;
+	glm::vec3 _specular;
+	float _constant;
+	float _linear;
+	float _quadratic;
+	float _cutOff;
+	float _outterCutOff;
+	glm::vec3 _color;
+};
+
+
 int main()
 {
 	//init glfw
@@ -268,22 +338,22 @@ int main()
 	dirLight.SetShader(shader);
 	//PointLight
 	PointLight pointLights[4] = {
-		PointLight("pointLights[0]", pointLightsPos[0], pointLightColor[0],
+		PointLight("pointLights[0]", pointLightColor[0], pointLightsPos[0],
 		glm::vec3(0.05f, 0.05f, 0.05f),
 		glm::vec3(0.8f, 0.8f, 0.8f),
 		glm::vec3(1.0f, 1.0f, 1.0f),
 		1.0f, 0.09f, 0.032f),
-		PointLight("pointLights[1]", pointLightsPos[1], pointLightColor[1],
+		PointLight("pointLights[1]", pointLightColor[1], pointLightsPos[1],
 		glm::vec3(0.05f, 0.05f, 0.05f),
 		glm::vec3(0.8f, 0.8f, 0.8f),
 		glm::vec3(1.0f, 1.0f, 1.0f),
 		1.0f, 0.09f, 0.032f),
-		PointLight("pointLights[2]", pointLightsPos[2], pointLightColor[2],
+		PointLight("pointLights[2]", pointLightColor[2], pointLightsPos[2],
 		glm::vec3(0.05f, 0.05f, 0.05f),
 		glm::vec3(0.8f, 0.8f, 0.8f),
 		glm::vec3(1.0f, 1.0f, 1.0f),
 		1.0f, 0.09f, 0.032f),
-		PointLight("pointLights[3]", pointLightsPos[3], pointLightColor[3],
+		PointLight("pointLights[3]", pointLightColor[3], pointLightsPos[3],
 		glm::vec3(0.05f, 0.05f, 0.05f),
 		glm::vec3(0.8f, 0.8f, 0.8f),
 		glm::vec3(1.0f, 1.0f, 1.0f),
@@ -294,6 +364,12 @@ int main()
 		pointLights[i].SetShader(shader);
 	}
 	
+	SpotLight spotLight("spotLight", glm::vec3(1.0f, 1.0f, 1.0f), camera.Position, camera.Front,
+		glm::vec3(0.0f, 0.0f, 0.0f),
+		glm::vec3(1.0f, 1.0f, 1.0f),
+		glm::vec3(1.0f, 1.0f, 1.0f),
+		1.0f, 0.09f, 0.032f, glm::cos(glm::radians(12.5)), glm::cos(glm::radians(15.0f)));
+	spotLight.SetShader(shader);
 
 	glEnable(GL_DEPTH_TEST);
 
@@ -338,11 +414,14 @@ int main()
 		glBindVertexArray(VAO);
 		shader.Use();
 
-
 		shader.SetVec3("viewPos", camera.Position);
 		shader.SetMat4("view", view);
 		shader.SetVec3("material.specular", glm::vec3(0.5f, 0.5f, 0.5f));
 		shader.SetFloat("material.shininess", 32.0f);
+
+		spotLight.SetPos(camera.Position);
+		spotLight.SetDir(camera.Front);
+		spotLight.SetShader(shader);
 
 		for (int i = 0; i < 10; ++i)
 		{
