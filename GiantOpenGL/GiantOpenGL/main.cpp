@@ -209,7 +209,7 @@ int main()
 
 		glBindVertexArray(VAO);
 		shader.Use();
-		shader.SetVec3("light.position", lampPos);
+		shader.SetVec3("light.direction", glm::vec3(-0.2f, -1.0f, -0.3f));
 		shader.SetVec3("light.ambient", glm::vec3(0.1f, 0.1f, 0.1f));
 		shader.SetVec3("light.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
 		shader.SetVec3("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
@@ -218,11 +218,16 @@ int main()
 		shader.SetVec3("material.specular", glm::vec3(0.5f, 0.5f, 0.5f));
 		shader.SetFloat("material.shininess", 32.0f);
 
-		glm::mat4 model;
-		model = glm::translate(model, cubePositions[0]);
-		shader.SetMat4("model", model);
+		for (int i = 0; i < 10; ++i)
+		{
+			glm::mat4 model;
+			model = glm::translate(model, cubePositions[i]);
+			model = glm::rotate(model, glm::radians(20.0f*i), glm::vec3(1.0f, 0.3f, 0.5f));
+			shader.SetMat4("model", model);
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
 
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		
 
 		glfwPollEvents();
 		glfwSwapBuffers(window);
