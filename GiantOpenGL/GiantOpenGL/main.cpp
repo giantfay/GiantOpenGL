@@ -167,10 +167,12 @@ int main()
 	//Create and load texture
 	GLuint tex1 = load_texture("../../Resources/Textures/container2.png");
 	GLuint tex2 = load_texture("../../Resources/Textures/container2_specular.png");
+	GLuint tex3 = load_texture("../../Resources/Textures/matrix.jpg");
 
 	shader.Use();
 	shader.SetInt("material.diffuseMap", 0);
 	shader.SetInt("material.specularMap", 1);
+	shader.SetInt("material.emissionMap", 2);
 
 	glEnable(GL_DEPTH_TEST);
 
@@ -206,6 +208,8 @@ int main()
 		glBindTexture(GL_TEXTURE_2D, tex1);
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, tex2);
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, tex3);
 
 		glBindVertexArray(VAO);
 		shader.Use();
