@@ -124,6 +124,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\Common\Shader.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="Mesh.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
