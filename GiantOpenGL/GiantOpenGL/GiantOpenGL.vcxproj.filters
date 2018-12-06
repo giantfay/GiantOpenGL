@@ -29,10 +29,13 @@
     <ClInclude Include="..\..\Common\Shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Camera.h">
+    <ClInclude Include="..\..\Common\Mesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Mesh.h">
+    <ClInclude Include="..\..\Common\Model.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Common\Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -9,7 +9,7 @@
 
 #include "Shader.h"
 #include "Camera.h"
-#include "Mesh.h"
+#include "Model.h"
 
 #include <iostream>
 
@@ -32,8 +32,6 @@ void processInput(GLFWwindow* window);
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* windwo, double xoffset, double yoffset);
-
-GLuint load_texture(const char* imagePath);
 
 class DirectionalLight
 {
@@ -324,8 +322,8 @@ int main()
 	glBindVertexArray(0);
 
 	//Create and load texture
-	GLuint tex1 = load_texture("../../Resources/Textures/container2.png");
-	GLuint tex2 = load_texture("../../Resources/Textures/container2_specular.png");
+	GLuint tex1 = LoadTextureFromFile("container2.png", "../../Resources/Textures");
+	GLuint tex2 = LoadTextureFromFile("container2_specular.png", "../../Resources/Textures");
 
 	shader.Use();
 	shader.SetInt("material.diffuseMap", 0);
@@ -501,47 +499,4 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
 	camera.ProcessMouseScroll(xoffset, yoffset);
-}
-
-GLuint load_texture(const char* imagePath)
-{
-	GLuint texID;
-	glGenTextures(1, &texID);
-
-	int width, height, nrChannels;
-	unsigned char* data = stbi_load(imagePath, &width, &height, &nrChannels, 0);
-	if (data)
-	{
-		GLenum format;
-		switch (nrChannels)
-		{
-		case 1:
-			format = GL_RED;
-			break;
-		case 3:
-			format = GL_RGB;
-			break;
-		case 4:
-			format = GL_RGBA;
-			break;
-		default:
-			format = GL_RED;
-			break;
-		}
-		glBindTexture(GL_TEXTURE_2D, texID);
-		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	}
-	else
-	{
-		std::cout << "Failed to load image " << imagePath << std::endl;
-	}
-	stbi_image_free(data);
-
-	return texID;
 }
