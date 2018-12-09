@@ -165,6 +165,9 @@ int main()
 	shader.Use();
 	shader.SetInt("texture_diffuse1", 0);
 
+	shader.SetFloat("near", 0.1f);
+	shader.SetFloat("far", 100.0f);
+
 	//render loop
 	while (!glfwWindowShouldClose(window))
 	{
