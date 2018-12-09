@@ -193,11 +193,11 @@ int main()
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, cubeTex);
 		glm::mat4 model;
-		model = glm::translate(model, glm::vec3(-1.0f, 0.0f, -1.0f));
+		model = glm::translate(model, glm::vec3(-1.0f, 0.01f, -1.0f));
 		shader.SetMat4("model", model);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		model = glm::mat4();
-		model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f));
+		model = glm::translate(model, glm::vec3(2.0f, 0.01f, 0.0f));
 		shader.SetMat4("model", model);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 

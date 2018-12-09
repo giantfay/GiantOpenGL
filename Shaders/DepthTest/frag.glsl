@@ -16,6 +16,7 @@ float GetViewSpaceDepth(float fragZ)
 
 void main()
 {
-    float d = GetViewSpaceDepth(gl_FragCoord.z)/far;
-    FragColor = vec4(vec3(d), 1.0);;
+    // float d = GetViewSpaceDepth(gl_FragCoord.z)/far;
+    // FragColor = vec4(vec3(d), 1.0);
+    FragColor = texture(texture_diffuse1, TexCoords);
 }
