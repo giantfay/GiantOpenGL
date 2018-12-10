@@ -42,7 +42,7 @@ int main()
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	//create windwow
-	GLFWwindow* window = glfwCreateWindow(screenWidth, screenHeight, "DepthTest", nullptr, nullptr);
+	GLFWwindow* window = glfwCreateWindow(screenWidth, screenHeight, "StencilTest", nullptr, nullptr);
 	if (!window)
 	{
 		std::cout << "Failed to create glfw window" << std::endl;
@@ -70,7 +70,8 @@ int main()
 	glfwSetScrollCallback(window, scroll_callback);
 
 	//lode shader file and compile
-	Shader shader("../../Shaders/DepthTest/vert.glsl", "../../Shaders/DepthTest/frag.glsl");
+	Shader shader("../../Shaders/StencilTest/vert.glsl", "../../Shaders/StencilTest/frag.glsl");
+	Shader outlineShader("../../Shaders/StencilTest/vert.glsl", "../../Shaders/StencilTest/outline_frag.glsl");
 
 	glEnable(GL_DEPTH_TEST);
 	//glDepthFunc(GL_ALWAYS);
@@ -178,7 +179,7 @@ int main()
 		processInput(window);
 
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 		shader.Use();
 
@@ -188,7 +189,21 @@ int main()
 		proj = glm::perspective(glm::radians(camera.Fov), (float)screenWidth / (float)screenHeight, 0.1f, 100.0f);
 		shader.SetMat4("projection", proj);
 
-		//cube
+		//plane
+		glDisable(GL_STENCIL_TEST);
+		//glStencilMask(0x00);
+		shader.Use();
+		glBindVertexArray(planeVAO);
+		glBindTexture(GL_TEXTURE_2D, planeTex);
+		shader.SetMat4("model", glm::mat4());
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+		glEnable(GL_STENCIL_TEST);
+		glStencilFunc(GL_ALWAYS, 1, 0xff);
+		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+		glStencilMask(0xff);
+
+		//cube and stencil
 		glBindVertexArray(cubeVAO);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, cubeTex);
@@ -200,14 +215,27 @@ int main()
 		model = glm::translate(model, glm::vec3(2.0f, 0.01f, 0.0f));
 		shader.SetMat4("model", model);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
+		
+		// outline
+		glStencilFunc(GL_NOTEQUAL, 1, 0xff);
+		glStencilMask(0x00);
+		outlineShader.Use();
+		outlineShader.SetMat4("view", view);
+		outlineShader.SetMat4("projection", proj);
+		float scale = 1.05;
+		model = glm::mat4();
+		model = glm::translate(model, glm::vec3(-1.0f, 0.01f, -1.0f));
+		model = glm::scale(model, glm::vec3(scale));
+		outlineShader.SetMat4("model", model);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		model = glm::mat4();
+		model = glm::translate(model, glm::vec3(2.0f, 0.01f, 0.0f));
+		model = glm::scale(model, glm::vec3(scale));
+		outlineShader.SetMat4("model", model);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
 
-		//plane
-		glBindVertexArray(planeVAO);
-		glBindTexture(GL_TEXTURE_2D, planeTex);
-		shader.SetMat4("model", glm::mat4());
-		glDrawArrays(GL_TRIANGLES, 0, 6);
 		glBindVertexArray(0);
-
+		glStencilMask(0xff); // must set 0xff here, if not, clear stencil buffer will fail
 		glfwPollEvents();
 		glfwSwapBuffers(window);
 	}
