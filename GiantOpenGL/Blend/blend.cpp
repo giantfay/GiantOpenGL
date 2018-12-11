@@ -188,18 +188,20 @@ int main()
 	//lode shader file and compile
 	Shader shader("../../Shaders/Blend/vert.glsl", "../../Shaders/Blend/frag.glsl");
 	Shader grassShader("../../Shaders/Blend/vert.glsl", "../../Shaders/Blend/alpha_discard_frag.glsl");
+	Shader windowShader("../../Shaders/Blend/vert.glsl", "../../Shaders/Blend/alpha_blend_frag.glsl");
 
 	glEnable(GL_DEPTH_TEST);
-	//glDepthFunc(GL_ALWAYS);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	GLuint cubeTex = LoadTextureFromFile("marble.jpg", "../../Resources/Textures");
 	GLuint planeTex = LoadTextureFromFile("metal.png", "../../Resources/Textures");
 	GLuint grassTex = LoadTextureFromFile("grass.png", "../../Resources/Textures");
+	GLuint windowTex = LoadTextureFromFile("window.png", "../../Resources/Textures");
 
-	shader.Use();
 	shader.SetInt("texture_diffuse1", 0);
-	
 	grassShader.SetInt("texture1", 0);
+	windowShader.SetInt("texture1", 0);
 
 	//render loop
 	while (!glfwWindowShouldClose(window))
@@ -243,15 +245,27 @@ int main()
 
 		//quad
 		glBindVertexArray(quadVAO);
-		grassShader.Use();
-		grassShader.SetMat4("view", view);
-		grassShader.SetMat4("projection", proj);
-		glBindTexture(GL_TEXTURE_2D, grassTex);
+		windowShader.Use();
+		windowShader.SetMat4("view", view);
+		windowShader.SetMat4("projection", proj);
+		glBindTexture(GL_TEXTURE_2D, windowTex);
+
+		//When drawing a scene with non - transparent and transparent objects the general outline is usually as follows :
+		//1.Draw all opaque objects first.
+		//2.Sort all the transparent objects.
+		//3.Draw all the transparent objects in sorted order.
+		std::map<float, glm::vec3> sortedByDist;
 		for (unsigned int i = 0; i < quadPoses.size(); ++i)
 		{
+			float dist = glm::length(camera.Position - quadPoses[i]);
+			sortedByDist[dist] = quadPoses[i];
+		}
+
+		for (auto it = sortedByDist.crbegin(); it != sortedByDist.crend(); ++it)
+		{
 			model = glm::mat4();
-			model = glm::translate(model, quadPoses[i]);
-			grassShader.SetMat4("model", model);
+			model = glm::translate(model,it->second);
+			windowShader.SetMat4("model", model);
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 		}
 
