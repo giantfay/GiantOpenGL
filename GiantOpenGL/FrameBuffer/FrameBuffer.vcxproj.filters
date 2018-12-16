@@ -35,7 +35,7 @@
     <ClCompile Include="..\..\Common\stb_image.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="face_culling.cpp">
+    <ClCompile Include="framebuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
