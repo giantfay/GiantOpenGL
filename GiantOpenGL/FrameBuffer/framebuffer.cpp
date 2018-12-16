@@ -281,6 +281,13 @@ int main()
 		glfwSwapBuffers(window);
 	}
 
+	glDeleteVertexArrays(1, &cubeVAO);
+	glDeleteVertexArrays(1, &planeVAO);
+	glDeleteVertexArrays(1, &screenQuadVAO);
+	glDeleteBuffers(1, &cubeVBO);
+	glDeleteBuffers(1, &planeVBO);
+	glDeleteBuffers(1, &screenQuadVBO);
+
 	glfwTerminate();
 	return 0;
 }
